@@ -1,10 +1,12 @@
 ﻿class Writer
 {
+    public static int currentLineNum = 0;
+
     private static void ShowException(Exception e)
     {
         ConsoleColor currentConsoleColor = Console.ForegroundColor;
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("An exception occured.\n" + e);
+        Console.WriteLine("An exception occured. Line: " + currentLineNum + "\n" + e);
         Console.ForegroundColor = currentConsoleColor;
         Environment.Exit(1);
     }
@@ -23,6 +25,7 @@
                 float bestTime;
                 bool usesDLC1Map = false;
 
+                currentLineNum++;
                 currentLine = reader.ReadLine();
                 version = Convert.ToByte(currentLine.Substring(9));
                 if (version < 1 || version > 4)
@@ -31,9 +34,11 @@
                     Environment.Exit(1);
                 }
 
+                currentLineNum++;
                 currentLine = reader.ReadLine();
                 verified = Convert.ToBoolean(currentLine.Substring(10));
 
+                currentLineNum++;
                 currentLine = reader.ReadLine();
                 mapName = currentLine.Substring(6);
                 if (mapName.Length > 113) // Won't fit into the 128B header if bigger than this. Not sure if BB is actually unable to handle this, but I suppose so.
@@ -42,19 +47,22 @@
                     Environment.Exit(1);
                 }
 
+                currentLineNum++;
                 currentLine = reader.ReadLine();
                 creatorID = Convert.ToUInt64(currentLine.Substring(12));
 
+                currentLineNum++;
                 currentLine = reader.ReadLine();
                 bestTime = Convert.ToSingle(currentLine.Substring(10));
 
                 if (version >= 3)
                 {
+                    currentLineNum++;
                     currentLine = reader.ReadLine();
                     usesDLC1Map = Convert.ToBoolean(currentLine.Substring(14));
                 }
 
-                    writer.Write(version);
+                writer.Write(version);
                 writer.Write(verified);
                 writer.Write(mapName);
                 writer.Write(creatorID);
@@ -67,16 +75,19 @@
 
                 for (int i = 0; i < 2; i++)
                 {
+                    currentLineNum++;
                     reader.ReadLine(); // "\n\n"
                 }
 
                 // Blocks
+                currentLineNum++;
                 currentLine = reader.ReadLine();
                 int numBlocks = Convert.ToInt32(currentLine.Substring(14));
 
                 writer.Write(numBlocks);
                 for (int i = 0; i < 2; i++)
                 {
+                    currentLineNum++;
                     reader.ReadLine(); // "Blocks: \n"
                 }
 
@@ -91,14 +102,18 @@
                     float w;
                     float scale = 1.0f;
 
+                    currentLineNum++;
                     currentLine = reader.ReadLine();
                     blockID = Convert.ToUInt32(currentLine.Substring(10));
 
+                    currentLineNum++;
                     instanceID = reader.ReadLine().Substring(13);
 
+                    currentLineNum++;
                     currentLine = reader.ReadLine();
                     color = Convert.ToByte(currentLine.Substring(7, 1));
 
+                    currentLineNum++;
                     currentLine = reader.ReadLine();
                     currentLine = currentLine.Substring(10, currentLine.Length - 10);
 
@@ -118,6 +133,7 @@
                     /// -- Position
 
                     /// ++ Rotation
+                    currentLineNum++;
                     currentLine = reader.ReadLine();
                     currentLine = currentLine.Substring(10, currentLine.Length - 10);
 
@@ -135,6 +151,7 @@
                     writer.Write(w);
                     /// -- Rotation
 
+                    currentLineNum++;
                     currentLine = reader.ReadLine();
                     if (version >= 2)
                     {
@@ -144,6 +161,7 @@
 
                     if (version >= 4 && color == 8)
                     {
+                        currentLineNum++;
                         currentLine = reader.ReadLine();
                         currentLine = currentLine.Substring(14, currentLine.Length - 14);
 
@@ -161,20 +179,24 @@
                         writer.Write(w);
                     }
 
+                    currentLineNum++;
                     reader.ReadLine();
                 }
 
                 // Modified sceneries. Warning: untested.
                 if (version >= 3)
                 {
+                    currentLineNum++;
                     currentLine = reader.ReadLine();
                     int numModifiedScenery = Convert.ToInt32(currentLine.Substring(26));
                     writer.Write(numModifiedScenery);
 
                     for (int i = 0; i < numModifiedScenery; i++)
                     {
+                        currentLineNum++;
                         string sceneryID = reader.ReadLine().Substring(12);
 
+                        currentLineNum++;
                         currentLine = reader.ReadLine();
                         byte color = Convert.ToByte(currentLine.Substring(7, 1));
 
@@ -183,19 +205,23 @@
                     }
                 }
 
+                currentLineNum++;
                 reader.ReadLine();
 
                 // Custom color swatches
                 if (version >= 4)
                 {
+                    currentLineNum++;
                     currentLine = reader.ReadLine();
                     int numCustomColors = Convert.ToInt32(currentLine.Substring(29));
                     writer.Write(numCustomColors);
 
+                    currentLineNum++;
                     reader.ReadLine();
 
                     for (int i = numCustomColors - 1; i >= 0; i--)
                     {
+                        currentLineNum++;
                         reader.ReadLine(); // "Custom color swatch: "
                         currentLine = reader.ReadLine();
 
@@ -212,6 +238,7 @@
                         writer.Write(z);
                         writer.Write(w);
 
+                        currentLineNum++;
                         reader.ReadLine();
                     }
                 }
@@ -221,7 +248,7 @@
 
     public static void Main(string[] args)
     {
-        Console.WriteLine("Beton Brutal Map Writer 1.0.1");
+        Console.WriteLine("Beton Brutal Map Writer 1.1");
         Console.WriteLine("Note: please preserve text formatting (preferrably spaces and empty lines). Not doing so would produce a corrupted map.\n");
 
         try
