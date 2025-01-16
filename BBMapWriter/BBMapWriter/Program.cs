@@ -21,7 +21,7 @@
                 string mapName;
                 ulong creatorID;
                 float bestTime;
-                bool usesDLC1Map;
+                bool usesDLC1Map = false;
 
                 currentLine = reader.ReadLine();
                 version = Convert.ToByte(currentLine.Substring(9));
@@ -48,15 +48,21 @@
                 currentLine = reader.ReadLine();
                 bestTime = Convert.ToSingle(currentLine.Substring(10));
 
-                currentLine = reader.ReadLine();
-                usesDLC1Map = Convert.ToBoolean(currentLine.Substring(14));
+                if (version >= 3)
+                {
+                    currentLine = reader.ReadLine();
+                    usesDLC1Map = Convert.ToBoolean(currentLine.Substring(14));
+                }
 
-                writer.Write(version);
+                    writer.Write(version);
                 writer.Write(verified);
                 writer.Write(mapName);
                 writer.Write(creatorID);
                 writer.Write(bestTime);
-                writer.Write(usesDLC1Map);
+                if (version >= 3)
+                {
+                    writer.Write(usesDLC1Map);
+                }
                 writer.Seek(128, SeekOrigin.Begin);
 
                 for (int i = 0; i < 2; i++)
@@ -133,9 +139,8 @@
                     if (version >= 2)
                     {
                         scale = Convert.ToSingle(currentLine.Substring(7));
+                        writer.Write(scale);
                     }
-
-                    writer.Write(scale);
 
                     if (version >= 4 && color == 8)
                     {
@@ -216,7 +221,7 @@
 
     public static void Main(string[] args)
     {
-        Console.WriteLine("Beton Brutal Map Writer 1.0");
+        Console.WriteLine("Beton Brutal Map Writer 1.0.1");
         Console.WriteLine("Note: please preserve text formatting (preferrably spaces and empty lines). Not doing so would produce a corrupted map.\n");
 
         try
